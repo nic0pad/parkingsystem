@@ -24,7 +24,7 @@ public class TicketDAO {
         try {
             con = dataBaseConfig.getConnection();
             PreparedStatement ps = con.prepareStatement(DBConstants.SAVE_TICKET);
-            //ID, PARKING_NUMBER, VEHICLE_REG_NUMBER, PRICE, IN_TIME, OUT_TIME)
+            //ID, PARKING_NUMBER, VEHICLE_REG_NUMBER, PRICE, IN_TIME, OUT_TIME
             //ps.setInt(1,ticket.getId());
             ps.setInt(1,ticket.getParkingSpot().getId());
             ps.setString(2, ticket.getVehicleRegNumber());
@@ -36,8 +36,8 @@ public class TicketDAO {
             logger.error("Error fetching next available slot",ex);
         }finally {
             dataBaseConfig.closeConnection(con);
-            return false;
         }
+        return false;
     }
 
     public Ticket getTicket(String vehicleRegNumber) {
@@ -46,7 +46,7 @@ public class TicketDAO {
         try {
             con = dataBaseConfig.getConnection();
             PreparedStatement ps = con.prepareStatement(DBConstants.GET_TICKET);
-            //ID, PARKING_NUMBER, VEHICLE_REG_NUMBER, PRICE, IN_TIME, OUT_TIME)
+            //ID, PARKING_NUMBER, VEHICLE_REG_NUMBER, PRICE, IN_TIME, OUT_TIME
             ps.setString(1,vehicleRegNumber);
             ResultSet rs = ps.executeQuery();
             if(rs.next()){
@@ -65,8 +65,8 @@ public class TicketDAO {
             logger.error("Error fetching next available slot",ex);
         }finally {
             dataBaseConfig.closeConnection(con);
-            return ticket;
         }
+        return ticket;
     }
 
     public boolean updateTicket(Ticket ticket) {
@@ -85,5 +85,26 @@ public class TicketDAO {
             dataBaseConfig.closeConnection(con);
         }
         return false;
+    }
+    
+	public boolean isRecurringClient(String vehicleRegNumber) {
+        Connection con = null;
+        boolean isRecurringClient = false;
+        try {
+            con = dataBaseConfig.getConnection();
+            PreparedStatement ps = con.prepareStatement(DBConstants.COUNT_TICKET_BY_VEHICULE);
+            ps.setString(1,vehicleRegNumber);
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()){
+            	if (rs.getInt(1) > 0) isRecurringClient = true;
+            }
+            dataBaseConfig.closeResultSet(rs);
+            dataBaseConfig.closePreparedStatement(ps);
+        }catch (Exception ex){
+            logger.error("Error fetching next available slot",ex);
+        }finally {
+            dataBaseConfig.closeConnection(con);
+        }
+        return isRecurringClient;
     }
 }
